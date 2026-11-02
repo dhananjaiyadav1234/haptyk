@@ -152,6 +152,7 @@ public final class SoundBank: @unchecked Sendable {
         self.sampleRate = sampleRate
         var baseSeed: UInt64 = 1469598103934665603
         for b in profile.id.utf8 { baseSeed = (baseSeed ^ UInt64(b)) &* 1099511628211 }
+        if profile.isRecorded { buildRecorded(); return }
         for category in KeyCategory.allCases {
             for direction in [KeyDirection.down, .up] {
                 let base = SoundDesigner.recipe(for: profile.spec, category: category, direction: direction)
@@ -164,6 +165,31 @@ public final class SoundBank: @unchecked Sendable {
                 }
                 slots[SoundSlot(category: category, direction: direction)] = buffers
             }
+        }
+    }
+
+    /// Real recordings: each file is one variant; larger keys play the same recordings pitched down,
+    /// modifiers slightly up. Packs without release recordings are silent on key-up.
+    private func buildRecorded() {
+        let pitch: [KeyCategory: Double] = [.alpha: 1, .space: 0.80, .enter: 0.88, .backspace: 0.93, .modifier: 1.10, .other: 1.04]
+        let rate = sampleRate
+        func decode(_ urls: [URL]) -> [[Float]] {
+            var out: [[Float]] = []
+            for u in urls {
+                guard let d = try? Data(contentsOf: u), let a = WAVReader.read(d), !a.samples.isEmpty else { continue }
+                out.append(WAVReader.resample(a.samples, from: a.sampleRate, to: rate))
+            }
+            return out
+        }
+        let press = decode(profile.pressFiles)
+        let release = decode(profile.releaseFiles)
+        for category in KeyCategory.allCases {
+            let ratio = pitch[category] ?? 1
+            let shift = { (x: [Float]) -> SampleBuffer in
+                ratio == 1 ? SampleBuffer(x) : SampleBuffer(WAVReader.resample(x, from: rate, to: rate, pitch: ratio))
+            }
+            slots[SoundSlot(category: category, direction: .down)] = press.map(shift)
+            if !release.isEmpty { slots[SoundSlot(category: category, direction: .up)] = release.map(shift) }
         }
     }
 

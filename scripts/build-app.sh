@@ -19,6 +19,7 @@ fi
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Thock"
+cp -R Resources/RecordedKeys "$APP/Contents/Resources/RecordedKeys"
 
 echo "▸ Generating icon"
 ICONSET="$(mktemp -d)/Thock.iconset"

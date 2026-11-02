@@ -34,10 +34,16 @@ public struct SoundProfile: Identifiable, Equatable, Sendable {
     public let name: String
     public let summary: String
     public let spec: ProfileSpec
+    /// Real recordings (when non-empty the profile is played from these files instead of being synthesized).
+    public var pressFiles: [URL] = []
+    public var releaseFiles: [URL] = []
+    public var attribution: String?
+    public var isRecorded: Bool { !pressFiles.isEmpty }
 }
 
 public enum SoundProfiles {
-    public static let all: [SoundProfile] = [
+    /// Synthesized profiles that ship in the code.
+    public static let builtIn: [SoundProfile] = [
         SoundProfile(id: "mx-blue", name: "Cherry MX Blue",
                      summary: "Sharp, clicky and crisp, with a loud click on press and release.",
                      spec: ProfileSpec(bodyHz: 640, bodyDecay: 0.040, bodyAmp: 0.7, overtones: [(2.3, 0.25), (3.7, 0.12)],
@@ -82,8 +88,12 @@ public enum SoundProfiles {
                                        brightnessHz: 2200, level: 0.80, upLevel: 0.65)),
     ]
 
+    /// Real-recording packs found in the app bundle and the user's Packs folder.
+    public static let recorded: [SoundProfile] = RecordedPackLoader.load()
+    public static var all: [SoundProfile] { builtIn + recorded }
+
     public static func profile(id: String) -> SoundProfile? { all.first { $0.id == id } }
-    public static var `default`: SoundProfile { all[0] }
+    public static var `default`: SoundProfile { builtIn[0] }
 }
 
 /// Derives per-key-category recipes from a profile: larger keys (space, enter, backspace)

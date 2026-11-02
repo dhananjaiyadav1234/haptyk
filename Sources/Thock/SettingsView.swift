@@ -84,6 +84,9 @@ struct SoundsTab: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(p.name).font(.headline)
                             Text(p.summary).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            if let a = p.attribution {
+                                Text(a).font(.caption2).foregroundStyle(.tertiary).fixedSize(horizontal: false, vertical: true)
+                            }
                         }
                         Spacer()
                         Button { c.preview(profileID: p.id) } label: { Image(systemName: "play.circle.fill").imageScale(.large) }

@@ -7,7 +7,7 @@ let rate = 48_000.0
 @Suite("Synthesis and profiles")
 struct SynthTests {
     @Test func sixRequiredProfilesExist() {
-        let names = SoundProfiles.all.map(\.name)
+        let names = SoundProfiles.builtIn.map(\.name)
         for expected in ["Cherry MX Blue", "Cherry MX Red", "Cherry MX Brown", "Gateron Yellow", "Holy Panda", "Topre"] {
             #expect(names.contains(expected))
         }
@@ -15,7 +15,7 @@ struct SynthTests {
     }
 
     @Test func everySlotIsAudibleBoundedAndFinite() {
-        for p in SoundProfiles.all {
+        for p in SoundProfiles.builtIn {
             let bank = SoundBank(profile: p, sampleRate: rate)
             for c in KeyCategory.allCases {
                 for d in [KeyDirection.down, .up] {
@@ -46,7 +46,7 @@ struct SynthTests {
 
     @Test func profilesAreMeaningfullyDifferent() {
         var centroids: [(String, Double, Double)] = []
-        for p in SoundProfiles.all {
+        for p in SoundProfiles.builtIn {
             let s = SoundBank(profile: p, sampleRate: rate).variants(.alpha, .down)[0].samples
             centroids.append((p.id, SpectralStats.centroid(s, sampleRate: rate), SpectralStats.decayTime(s, sampleRate: rate)))
         }
@@ -68,7 +68,7 @@ struct SynthTests {
         func fingerprint(_ s: [Float]) -> (Double, Double) {
             (SpectralStats.centroid(s, sampleRate: rate), SpectralStats.decayTime(s, sampleRate: rate))
         }
-        for p in SoundProfiles.all {
+        for p in SoundProfiles.builtIn {
             let bank = SoundBank(profile: p, sampleRate: rate)
             let a = fingerprint(bank.variants(.alpha, .down)[0].samples)
             for special in [KeyCategory.space, .enter, .backspace, .modifier] {
@@ -82,7 +82,7 @@ struct SynthTests {
     }
 
     @Test func releaseSoundIsQuieterOrShorterThanPress() {
-        for p in SoundProfiles.all {
+        for p in SoundProfiles.builtIn {
             let bank = SoundBank(profile: p, sampleRate: rate)
             let down = bank.variants(.alpha, .down)[0].samples, up = bank.variants(.alpha, .up)[0].samples
             #expect(up.count < down.count)

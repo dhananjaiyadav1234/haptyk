@@ -4,6 +4,7 @@ A native macOS menu-bar app that makes your MacBook's built-in keyboard sound li
 Free, local-only, no accounts, no network access, no recorded keystrokes.
 
 - Six synthesized switch profiles: Cherry MX Blue / Red / Brown, Gateron Yellow, Holy Panda, Topre
+- Two **real recordings** (Old Keyboard, Mac Keyboard; CC BY 3.0, see [ATTRIBUTION.md](ATTRIBUTION.md)) and support for your own sound packs
 - Separate sounds for letters, space, enter, backspace, modifiers and other keys; key-release sounds
 - Per-press variation (sample variants, pitch, volume, stereo position by key location)
 - Typing intensity from the **built-in accelerometer** (see below), with a typing-rhythm fallback
@@ -32,6 +33,14 @@ scripts/test.sh                # runs the automated tests
 
 > Ad-hoc signatures change on every build, so macOS treats a rebuilt Thock as a new app. If sounds stop after
 > rebuilding/reinstalling: Input Monitoring → select Thock → **–**, then add/enable it again.
+
+## Real recordings and your own sound packs
+
+Recorded profiles play real audio instead of synthesis. Put a folder in `~/Library/Application Support/Thock/Packs/<name>/` with
+`pack.json` (`{"name": "My Keyboard", "summary": "..."}`), `press-01.wav`, `press-02.wav`, … and optionally `release-01.wav`, …
+(PCM WAV, any sample rate), then restart Thock. Each file is a variant; space/enter/backspace/modifiers reuse them pitched
+lower/higher. Only use recordings you have the right to use. The bundled recordings are not switch-specific
+(they are an old keyboard and a Mac keyboard) and have no release sound.
 
 ## Using it
 
